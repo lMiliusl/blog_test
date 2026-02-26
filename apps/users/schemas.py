@@ -1,5 +1,6 @@
 from ninja import Schema
 from typing import Optional
+from datetime import datetime
 
 class UserRegisterSchema(Schema):
     username: str
@@ -20,7 +21,7 @@ class UserOutSchema(Schema):
     first_name: str
     last_name: str
     token: Optional[str] = None
-    registered_at: str
+    registered_at: datetime
 
 class TokenSchema(Schema):
     token: str
