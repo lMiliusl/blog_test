@@ -20,7 +20,7 @@ class UserOutSchema(Schema):
     first_name: str
     last_name: str
     token: Optional[str] = None
-    registred_at: str
+    registered_at: str
 
 class TokenSchema(Schema):
     token: str
