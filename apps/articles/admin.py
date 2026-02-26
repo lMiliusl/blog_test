@@ -4,7 +4,7 @@ from .models import Category, Article
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'created_at')
-    search_fields = ('name')
+    search_fields = ('name',)
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
