@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 User = get_user_model()
 
 class TokenAuth(HttpBearer):
-    def authentficate (sefl, request, token):
+    def authenticate (self, request, token):
         try:
             user = User.objects.get(token=token)
             request.user = user
