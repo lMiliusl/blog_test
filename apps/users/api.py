@@ -1,0 +1,67 @@
+from ninja import Router
+from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from .models import User
+from .schemas import UserRegisterSchema, UserLoginSchema, UserOutSchema, TokenSchema
+from .auth import token_auth
+from datetime import datetime
+
+router = Router(tags=['users'])
+
+@router.post('/register', response=TokenSchema)
+def register(request, data: UserRegisterSchema):
+    if User.objects.filter(username=data.username).exists():
+        return JsonResponse(
+            {'error': 'Пользователь с таким именем уже существует.'},
+            status=400
+        )
+    
+    user = User.objects.create_user(
+        username=data.username,
+        password=data.password,
+        email=data.email or '',
+        first_name=data.first_name,
+        last_name=data.last_name
+    )
+
+    token = user.generate_token()
+
+    return{
+        'token': token,
+        'user': user
+    }
+
+@router.post('/login', response=TokenSchema)
+def login(reqest, data: UserLoginSchema):
+    user = authenticate(
+        username=data.username,
+        password=data.password
+    )
+
+    if user is None:
+        return JsonResponse(
+            {'error': 'Неверное имя пользователя или пароль'},
+        status=401
+        )
+    
+    if not user.token:
+        token = user.generate_token()
+    else:
+        token = user.token
+
+    return {
+        'token': token,
+        'user': user
+    }
+
+@router.get('/me', response=UserOutSchema, auth=token_auth)
+def get_current_user(request):
+    return request.user
+
+@router.post('/logout', auth=token_auth)
+def logout(request):
+    user = request.user
+    user.token = None
+    user.save()
+    return {'success': True}
