@@ -14,6 +14,13 @@ class Comment(models.Model):
         verbose_name='Автор'
     )
 
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Статья'
+    )
+
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
