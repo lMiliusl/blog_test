@@ -1,0 +1,117 @@
+from ninja import Router
+from django.shortcuts import get_object_or_404
+from typing import List
+from .models import Article, Category
+from .schemas import ArticleSchema, ArticleCreateSchema, ArticleUpdateSchema, CategorySchema, CategoryCreateSchema
+from apps.users.auth import token_auth
+
+router = Router(tags=['articles'])
+
+@router.get('/categories', response=List[CategorySchema])
+def list_categories(request):
+    return Category.objects.all()
+
+@router.post('/categories', response=CategorySchema, auth=token_auth)
+def create_category(request, data: CategoryCreateSchema):
+    if not request.user.is_authenticated:
+        return 401
+    
+    category = Category.objects.create(**data.dict())
+    return category
+
+@router.get('/articles/', response=List[ArticleSchema])
+def list_articles(request):
+    articles = Article.objects.all().select_related('author', 'category')
+    result = []
+    for article in articles:
+        result.append({
+            'id': article.id,
+            'title': article.title,
+            'content': article.content,
+            'author_id': article.author.id,
+            'author_name': article.author.username,
+            'category': article.category,
+            'created_at': article.created_at,
+            'update_at': article.updated_at
+        })
+    return result
+
+@router.get('/articles/{article_id}', response=ArticleSchema)
+def get_article(request, article_id: int):
+    article = get_object_or_404(Article, id=article_id)
+    return {
+        'id': article.id,
+        'title': article.title,
+        'content': article.content,
+        'author_id': article.author.id,
+        'author_name': article.author.username,
+        'category': article.category,
+        'created_at': article.created_at,
+        'update_at': article.updated_at
+    }
+
+@router.post('/articles', response=ArticleSchema, auth=token_auth)
+def create_article(request, data: ArticleCreateSchema):
+    if not request.user.is_authenticated:
+        return 401
+    
+    article_data = data.dict()
+    category_id = article_data.pop('category_id', None)
+
+    article = Article.objects.create(
+        **article_data,
+        author=request.user
+    )
+
+    if category_id:
+        category = get_object_or_404(Category, id=category_id)
+        article.category = category
+        article.save()
+
+    return{
+        'id': article.id,
+        'title': article.title,
+        'content': article.content,
+        'author_id': article.author.id,
+        'author_name': article.author.username,
+        'category': article.category,
+        'created_at': article.created_at,
+        'update_at': article.updated_at
+    }
+
+@router.put('/articles/{article_id}', response=ArticleSchema, auth=token_auth)
+def update_aticle(request, article_id, data: ArticleUpdateSchema):
+    article = get_object_or_404(Article, id=article_id)
+
+    if article.author != request.user:
+        return {'error': 'Вы не автор данной статьи'}, 403
+    
+    for attr, value in data.dict(exclude_unset=True).items():
+        if attr == 'category_id' and value:
+            category = get_object_or_404(Category, id=value)
+            article.category = category
+        elif attr != 'category_id' and value is not None:
+            setattr(article, attr, value)
+
+    article.save()
+
+    return {
+        'id': article.id,
+        'title': article.title,
+        'content': article.content,
+        'author_id': article.author.id,
+        'author_name': article.author.username,
+        'category': article.category,
+        'created_at': article.created_at,
+        'update_at': article.updated_at
+        }
+
+@router.delete('/articles/{article_id}', auth=token_auth)
+def delete_article(request, article_id: int):
+    article = get_object_or_404(Article, id=article_id)
+
+    if article.author != request.user:
+        return {'error': 'Вы не автор данной статьи'}, 403
+    
+    article.delete()
+    return{'success': True}
