@@ -58,7 +58,7 @@ def create_article(request, data: ArticleCreateSchema):
         return 401
     
     article_data = data.dict()
-    category_id = article_data.pop('category_id', None)
+    category_id = article_data.get('category_id', None)
 
     article = Article.objects.create(
         **article_data,

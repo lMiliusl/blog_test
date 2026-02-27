@@ -70,7 +70,7 @@ def create_comment(request, data: CommentCreateSchema):
         'updated_at': comment.updated_at
     }
 
-@router.put('/comments/{coment_id}', response=CommentSchema, auth=token_auth)
+@router.put('/comments/{comment_id}', response=CommentSchema, auth=token_auth)
 def update_comment(request, comment_id: int, data: CommentUpdateSchema):
     comment = get_object_or_404(Comment, id = comment_id)
     if comment.author != request.user:
