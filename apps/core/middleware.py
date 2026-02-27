@@ -11,10 +11,24 @@ class RequestLogMiddleware:
     def __call__(self, request):
         start_time = time.time()
 
-        user = request.user if hasattr(request, 'user') and request.user.is_authenticated else 'Аноним'
+        try:
+            if hasattr(request, 'user') and request.user and request.user.is_authenticated:
+                user = request.user.username
+            else:
+                user = 'Аноним'
+        except:
+            user = 'Аноним (ошибка получения)'
+
         logger.info(f'Запрос: {request.method} {request.path} | Пользователь: {user}')
-        response = self.get_response(request)
+
+        try:
+            response = self.get_response(request)
+        except Exception as e:
+            logger.error(f'Ошибка при обработке запроса: {str(e)}')
+            raise
+    
         duration = time.time() - start_time
-        logger.info(f'Ответ: {response.status_code} | Время: {duration:.3f}с')
+        
+        logger.info(f'Ответ: {response.status_code if hasattr(response, 'status_code') else '???'} | Время: {duration:.3f}с')
         
         return response
