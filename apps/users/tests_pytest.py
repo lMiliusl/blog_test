@@ -31,7 +31,7 @@ class TestUserAPI:
         assert 'token' in data
         assert data['user']['username'] == test_user.username
 
-    def test_login_wrong_password(sefl, api_client, test_user):
+    def test_login_wrong_password(self, api_client, test_user):
         response = api_client.post('/users/login', json = {
             'username': test_user.username,
             'password': 'usernew'
@@ -40,8 +40,8 @@ class TestUserAPI:
         assert response.status_code == 401
         assert 'error' in response.json()
 
-    def test_get_me_authenticated(sefl, api_client, auth_headers, test_user):
-        response = api_client.post('/users/me', headers = auth_headers)
+    def test_get_me_authenticated(self, api_client, auth_headers, test_user):
+        response = api_client.get('/users/me', headers = auth_headers)
 
         assert response.status_code == 200
         data = response.json()

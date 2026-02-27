@@ -4,7 +4,7 @@ from apps.articles.models import Article, Category
 @pytest.mark.django_db
 class TestArticlesAPI:
 
-    def test_list_articles(sefl, api_client, test_article):
+    def test_list_articles(self, api_client, test_article):
         response = api_client.get('/articles/articles')
 
         assert response.status_code == 200
@@ -12,7 +12,7 @@ class TestArticlesAPI:
         assert len(data) >= 1
         assert data[0]['title'] == 'Test Article'
 
-    def test_get_article_detal(sefl, api_client, test_article):
+    def test_get_article_detal(self, api_client, test_article):
         response = api_client.get(f'/articles/articles/{test_article.id}')
 
         assert response.status_code == 200
@@ -20,7 +20,7 @@ class TestArticlesAPI:
         assert data['title'] == 'Test Article'
         assert data['author_name'] == 'user'
 
-    def test_create_article_success(sefl, api_client, auth_headers, test_category):
+    def test_create_article_success(self, api_client, auth_headers, test_category):
         responce = api_client.post(
             '/articles/articles',
             json = {
@@ -39,6 +39,7 @@ class TestArticlesAPI:
 
     def test_create_article_unauthenticated(self, api_client, test_category):
         response = api_client.post(
+             "/articles/articles",
             json = {
                 'title': 'New Article',
                 'content': 'New Content',
@@ -84,7 +85,7 @@ class TestArticlesAPI:
 
          assert not Article.objects.filter(id = article_id).exists()
 
-    def test_delete_article_as_non_author(sefl, api_client, another_auth_headers, test_article):
+    def test_delete_article_as_non_author(self, api_client, another_auth_headers, test_article):
          article_id = test_article.id
          response = api_client.delete(
               f'/articles/articles/{article_id}',
