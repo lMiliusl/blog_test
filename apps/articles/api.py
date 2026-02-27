@@ -4,6 +4,7 @@ from typing import List
 from .models import Article, Category
 from .schemas import ArticleSchema, ArticleCreateSchema, ArticleUpdateSchema, CategorySchema, CategoryCreateSchema
 from apps.users.auth import token_auth
+from apps.core.decorators import log_crud_operations
 
 router = Router(tags=['articles'])
 
@@ -51,6 +52,7 @@ def get_article(request, article_id: int):
     }
 
 @router.post('/articles', response=ArticleSchema, auth=token_auth)
+@log_crud_operations('Article')
 def create_article(request, data: ArticleCreateSchema):
     if not request.user.is_authenticated:
         return 401
@@ -80,6 +82,7 @@ def create_article(request, data: ArticleCreateSchema):
     }
 
 @router.put('/articles/{article_id}', response=ArticleSchema, auth=token_auth)
+@log_crud_operations('Article')
 def update_aticle(request, article_id, data: ArticleUpdateSchema):
     article = get_object_or_404(Article, id=article_id)
 
@@ -107,6 +110,7 @@ def update_aticle(request, article_id, data: ArticleUpdateSchema):
         }
 
 @router.delete('/articles/{article_id}', auth=token_auth)
+@log_crud_operations('Article')
 def delete_article(request, article_id: int):
     article = get_object_or_404(Article, id=article_id)
 

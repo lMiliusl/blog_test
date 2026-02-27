@@ -1,3 +1,4 @@
+import logging
 from ninja import Router
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
@@ -7,11 +8,18 @@ from .schemas import UserRegisterSchema, UserLoginSchema, UserOutSchema, TokenSc
 from .auth import token_auth
 from datetime import datetime
 
+logger = logging.getLogger('apps')
 router = Router(tags=['users'])
 
 @router.post('/register', response=TokenSchema)
 def register(request, data: UserRegisterSchema):
+    
+    logger.info(f'Попытка регистрации нового пользователя: {data.username}')
+
     if User.objects.filter(username=data.username).exists():
+        
+        logger.warning(f'Регистрация не выполнена: пользователь {data.username} уже существует')
+
         return JsonResponse(
             {'error': 'Пользователь с таким именем уже существует.'},
             status=400
@@ -26,6 +34,7 @@ def register(request, data: UserRegisterSchema):
     )
 
     token = user.generate_token()
+    logger.info(f'Успешная регистрация пользователя: {data.username} (ID: {user.id})')
 
     return{
         'token': token,
@@ -34,12 +43,17 @@ def register(request, data: UserRegisterSchema):
 
 @router.post('/login', response=TokenSchema)
 def login(reqest, data: UserLoginSchema):
+
+    logging.info(f'Попытка авторизации пользователя: {data.username}')
+
     user = authenticate(
         username=data.username,
         password=data.password
     )
 
     if user is None:
+        logger.warning(f'Пользователь {data.username} не авторизован')
+        
         return JsonResponse(
             {'error': 'Неверное имя пользователя или пароль'},
         status=401
@@ -49,7 +63,8 @@ def login(reqest, data: UserLoginSchema):
         token = user.generate_token()
     else:
         token = user.token
-
+    logger.info(f'Успешная авторизация пользователя: {data.username} (ID: {user.id})')
+    
     return {
         'token': token,
         'user': user
@@ -62,6 +77,7 @@ def get_current_user(request):
 @router.post('/logout', auth=token_auth)
 def logout(request):
     user = request.user
+    logger.info(f'Выход пользователя: {user.username} (ID: {user.id})')
     user.token = None
     user.save()
     return {'success': True}
