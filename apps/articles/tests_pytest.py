@@ -12,7 +12,7 @@ class TestArticlesAPI:
         assert len(data) >= 1
         assert data[0]['title'] == 'Test Article'
 
-    def test_get_article_detal(self, api_client, test_article):
+    def test_get_article_detail(self, api_client, test_article):
         response = api_client.get(f'/articles/articles/{test_article.id}')
 
         assert response.status_code == 200
@@ -21,7 +21,7 @@ class TestArticlesAPI:
         assert data['author_name'] == 'user'
 
     def test_create_article_success(self, api_client, auth_headers, test_category):
-        responce = api_client.post(
+        response = api_client.post(
             '/articles/articles',
             json = {
                 'title': 'New Article',
@@ -31,8 +31,8 @@ class TestArticlesAPI:
             headers = auth_headers
         )
 
-        assert responce.status_code == 200
-        data = responce.json()
+        assert response.status_code == 200
+        data = response.json()
         assert data['title'] == 'New Article'
         assert data['author_name'] == 'user'
         assert Article.objects.filter(title='New Article').exists()
