@@ -7,7 +7,7 @@ from apps.comments.models import Comment
 
 User = get_user_model()
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def api_client():
     return TestClient(api)
 
@@ -22,7 +22,7 @@ def test_user():
     return user
 
 @pytest.fixture
-def test_user():
+def another_user():
     user = User.objects.create_user(
      username = 'user',
      password = 'user',
@@ -41,7 +41,7 @@ def test_category():
 @pytest.fixture
 def test_article(test_user, test_category):
     return Article.objects.create(
-        title = 'Test Articles',
+        title = 'Test Article',
         content = 'Test Content',
         author = test_user,
         category = test_category
