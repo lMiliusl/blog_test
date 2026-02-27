@@ -29,6 +29,6 @@ class RequestLogMiddleware:
     
         duration = time.time() - start_time
         
-        logger.info(f'Ответ: {response.status_code if hasattr(response, 'status_code') else '???'} | Время: {duration:.3f}с')
+        logger.info(f"Ответ: {response.status_code if hasattr(response, 'status_code') else '???'} | Время: {duration:.3f}с")
         
         return response

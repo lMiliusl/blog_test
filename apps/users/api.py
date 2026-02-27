@@ -34,6 +34,7 @@ def register(request, data: UserRegisterSchema):
     )
 
     token = user.generate_token()
+    user.refresh_from_db()
     logger.info(f'Успешная регистрация пользователя: {data.username} (ID: {user.id})')
 
     return{
