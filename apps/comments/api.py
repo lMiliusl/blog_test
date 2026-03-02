@@ -1,11 +1,11 @@
 from ninja import Router
+from ninja.errors import HttpError
 from django.shortcuts import get_object_or_404
 from typing import List
 from .models import Comment
 from apps.articles.models import Article
 from .schemas import CommentSchema, CommentCreateSchema, CommentUpdateSchema
 from apps.users.auth import token_auth
-from django.http import JsonResponse
 
 router = Router(tags=['comments'])
 
@@ -51,7 +51,7 @@ def create_comment(request, data: CommentCreateSchema):
     if data.parent_id:
         parent = get_object_or_404(Comment, id=data.parent_id)
         if parent.article.id != article.id:
-            return 400,{'error': 'Родительский комментарий не относится к данной статье.'}
+            raise HttpError (400, 'Родительский комментарий не относится к данной статье.')
         
     comment = Comment.objects.create(
         content = data.content,
@@ -75,7 +75,7 @@ def create_comment(request, data: CommentCreateSchema):
 def update_comment(request, comment_id: int, data: CommentUpdateSchema):
     comment = get_object_or_404(Comment, id = comment_id)
     if comment.author != request.user:
-        return 403, {'error': 'Вы не являетесь автором этого комментария.'}
+        raise HttpError (403, 'Вы не являетесь автором этого комментария.')
     
     if data.content:
         comment.content = data.content
@@ -97,7 +97,7 @@ def delete_comment(request, comment_id: int):
     comment = get_object_or_404(Comment, id=comment_id)
     
     if comment.author != request.user:
-        return 403, {'error': 'Вы не являетесь автором этого комментария.'}
+        raise HttpError (403, 'Вы не являетесь автором этого комментария.')
     
     comment.delete()
     return {'success': True}

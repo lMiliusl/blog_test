@@ -1,8 +1,8 @@
 import logging
+from ninja.errors import HttpError
 from ninja import Router
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
 from .models import User
 from .schemas import UserRegisterSchema, UserLoginSchema, UserOutSchema, TokenSchema
 from .auth import token_auth
@@ -19,8 +19,7 @@ def register(request, data: UserRegisterSchema):
     if User.objects.filter(username=data.username).exists():
         
         logger.warning(f'Регистрация не выполнена: пользователь {data.username} уже существует')
-
-        return 400, {'error': 'Пользователь с таким именем уже существует.'}
+        raise HttpError (400,'Пользователь с таким именем уже существует.')
     
     user = User.objects.create_user(
         username=data.username,
@@ -51,7 +50,7 @@ def login(request, data: UserLoginSchema):
 
     if user is None:
         logger.warning(f'Пользователь {data.username} не авторизован')
-        return 401, {'error': 'Неверное имя пользователя или пароль'}
+        raise HttpError (401,'Неверное имя пользователя или пароль')
     
     if not user.token:
         token = user.generate_token()

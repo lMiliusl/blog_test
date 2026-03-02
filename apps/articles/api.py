@@ -1,4 +1,5 @@
 from ninja import Router
+from ninja.errors import HttpError
 from django.shortcuts import get_object_or_404
 from typing import List
 from .models import Article, Category
@@ -20,7 +21,7 @@ def create_category(request, data: CategoryCreateSchema):
     category = Category.objects.create(**data.dict())
     return category
 
-@router.get('/articles/', response=List[ArticleSchema])
+@router.get('/articles', response=List[ArticleSchema])
 def list_articles(request):
     articles = Article.objects.all().select_related('author', 'category')
     result = []
@@ -37,7 +38,7 @@ def list_articles(request):
         })
     return result
 
-@router.get('/articles/{article_id}', response=ArticleSchema)
+@router.get('/articles{article_id}', response=ArticleSchema)
 def get_article(request, article_id: int):
     article = get_object_or_404(Article, id=article_id)
     return {
@@ -81,13 +82,13 @@ def create_article(request, data: ArticleCreateSchema):
         'update_at': article.updated_at
     }
 
-@router.put('/articles/{article_id}', response=ArticleSchema, auth=token_auth)
+@router.put('/articles{article_id}', response=ArticleSchema, auth=token_auth)
 @log_crud_operations('Article')
 def update_aticle(request, article_id : int, data: ArticleUpdateSchema):
     article = get_object_or_404(Article, id=article_id)
 
     if article.author != request.user:
-        return {'error': 'Вы не автор данной статьи'}, 403
+        raise HttpError (403, 'Вы не автор данной статьи')
     
     for attr, value in data.dict(exclude_unset=True).items():
         if attr == 'category_id' and value is not None:
@@ -109,13 +110,13 @@ def update_aticle(request, article_id : int, data: ArticleUpdateSchema):
         'update_at': article.updated_at
         }
 
-@router.delete('/articles/{article_id}', auth=token_auth)
+@router.delete('/articles{article_id}', auth=token_auth)
 @log_crud_operations('Article')
 def delete_article(request, article_id: int):
     article = get_object_or_404(Article, id=article_id)
 
     if article.author != request.user:
-        return {'error': 'Вы не автор данной статьи'}, 403
+        raise HttpError (403, 'Вы не автор данной статьи')
     
     article.delete()
     return{'success': True}
