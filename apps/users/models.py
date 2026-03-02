@@ -22,7 +22,7 @@ class User(AbstractUser):
         return self.token
     
     def __str__(self):
-        return self.token
+        return self.username
     
     class Meta:
         verbose_name = 'Пользователь'

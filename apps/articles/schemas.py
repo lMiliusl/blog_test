@@ -28,5 +28,5 @@ class ArticleCreateSchema(Schema):
 
 class ArticleUpdateSchema(Schema):
     title: Optional[str] = None
-    comtent: Optional[str] = None
+    content: Optional[str] = None
     category_id: Optional[int] = None

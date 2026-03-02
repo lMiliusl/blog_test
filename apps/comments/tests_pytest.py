@@ -10,7 +10,7 @@ class TestCommentAPI:
         assert response.status_code == 200
         data = response.json()
         assert len(data) >= 1
-        assert data[0]['content'] == 'Test comment'
+        assert data[0]['content'] == 'Test Comment'
 
     def test_create_comment_success(self, api_client, test_article, auth_headers):
         response = api_client.post(
@@ -25,7 +25,7 @@ class TestCommentAPI:
         assert response.status_code == 200
         data = response.json()
         assert data['content'] == 'New comment'
-        assert data['author_name'] == 'user'
+        assert data['author_name'] == 'test'
         assert Comment.objects.filter(content = 'New comment').exists()
 
     def test_create_comment_unauthenticated(self, api_client, test_article):
@@ -39,7 +39,7 @@ class TestCommentAPI:
 
         assert response.status_code == 401
 
-    def test_create_reply_seccess(self, api_client, test_article, auth_headers, test_comment):
+    def test_create_reply_success(self, api_client, test_article, auth_headers, test_comment):
         response = api_client.post(
             '/comments',
             json={

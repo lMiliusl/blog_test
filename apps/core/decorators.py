@@ -8,7 +8,7 @@ def log_crud_operations(model_name):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
             operation = func.__name__
-            logger.info(f'CRUD операция: {model_name} - {operation} - Пользователь: {request.user.username if hasattr(request, 'user') and request.user.is_authenticated else 'Аноним'}')
+            logger.info(f"CRUD операция: {model_name} - {operation} - Пользователь: {request.user.username if hasattr(request, 'user') and request.user.is_authenticated else 'Аноним'}")
             result = func(request, *args, **kwargs)
 
             if hasattr(result, 'status_code'):

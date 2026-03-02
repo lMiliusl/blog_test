@@ -55,7 +55,7 @@ class Article(models.Model):
         auto_now_add=True,
         verbose_name='Дата создания'
     )
-    updated_at = models.DateTimeField(
+    update_at = models.DateTimeField(
         auto_now=True,
         verbose_name='Дата обновления'
     )

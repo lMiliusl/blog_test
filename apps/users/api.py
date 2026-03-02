@@ -20,10 +20,7 @@ def register(request, data: UserRegisterSchema):
         
         logger.warning(f'Регистрация не выполнена: пользователь {data.username} уже существует')
 
-        return JsonResponse(
-            {'error': 'Пользователь с таким именем уже существует.'},
-            status=400
-        )
+        return 400, {'error': 'Пользователь с таким именем уже существует.'}
     
     user = User.objects.create_user(
         username=data.username,
@@ -43,9 +40,9 @@ def register(request, data: UserRegisterSchema):
     }
 
 @router.post('/login', response=TokenSchema)
-def login(reqest, data: UserLoginSchema):
+def login(request, data: UserLoginSchema):
 
-    logging.info(f'Попытка авторизации пользователя: {data.username}')
+    logger.info(f'Попытка авторизации пользователя: {data.username}')
 
     user = authenticate(
         username=data.username,
@@ -54,11 +51,7 @@ def login(reqest, data: UserLoginSchema):
 
     if user is None:
         logger.warning(f'Пользователь {data.username} не авторизован')
-        
-        return JsonResponse(
-            {'error': 'Неверное имя пользователя или пароль'},
-        status=401
-        )
+        return 401, {'error': 'Неверное имя пользователя или пароль'}
     
     if not user.token:
         token = user.generate_token()

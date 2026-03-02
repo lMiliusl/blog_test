@@ -51,7 +51,7 @@ def create_comment(request, data: CommentCreateSchema):
     if data.parent_id:
         parent = get_object_or_404(Comment, id=data.parent_id)
         if parent.article.id != article.id:
-            return JsonResponse ({'error': 'Родительский комментарий не относится к данной статье.'}, status = 400)
+            return 400,{'error': 'Родительский комментарий не относится к данной статье.'}
         
     comment = Comment.objects.create(
         content = data.content,
@@ -75,7 +75,7 @@ def create_comment(request, data: CommentCreateSchema):
 def update_comment(request, comment_id: int, data: CommentUpdateSchema):
     comment = get_object_or_404(Comment, id = comment_id)
     if comment.author != request.user:
-        return JsonResponse({'error': 'Вы не являетесь автором этого комментария.'}, status = 403)
+        return 403, {'error': 'Вы не являетесь автором этого комментария.'}
     
     if data.content:
         comment.content = data.content
@@ -97,7 +97,7 @@ def delete_comment(request, comment_id: int):
     comment = get_object_or_404(Comment, id=comment_id)
     
     if comment.author != request.user:
-        return JsonResponse ({'error': 'Вы не являетесь автором этого комментария.'}, status = 403)
+        return 403, {'error': 'Вы не являетесь автором этого комментария.'}
     
     comment.delete()
     return {'success': True}

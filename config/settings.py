@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.articles',
     'apps.comments',
+    'apps.core'
 
 ]
 
@@ -70,7 +71,7 @@ DATABASES = {
     }
 }
 
-if not os.environ.get('DB_NAME'):
+if os.environ.get('DB_NAME') is None:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

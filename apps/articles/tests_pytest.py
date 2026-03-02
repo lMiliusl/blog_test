@@ -18,7 +18,7 @@ class TestArticlesAPI:
         assert response.status_code == 200
         data = response.json()
         assert data['title'] == 'Test Article'
-        assert data['author_name'] == 'user'
+        assert data['author_name'] == 'test'
 
     def test_create_article_success(self, api_client, auth_headers, test_category):
         response = api_client.post(
@@ -34,7 +34,7 @@ class TestArticlesAPI:
         assert response.status_code == 200
         data = response.json()
         assert data['title'] == 'New Article'
-        assert data['author_name'] == 'user'
+        assert data['author_name'] == 'test'
         assert Article.objects.filter(title='New Article').exists()
 
     def test_create_article_unauthenticated(self, api_client, test_category):

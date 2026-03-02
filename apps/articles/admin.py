@@ -8,8 +8,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'category', 'created_at', 'updated_at')
+    list_display = ('title', 'author', 'category', 'created_at', 'update_at')
     list_filter = ('category', 'created_at', 'author')
     search_fields = ('title', 'content')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'update_at')
 

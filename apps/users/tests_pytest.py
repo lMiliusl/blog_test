@@ -23,7 +23,7 @@ class TestUserAPI:
     def test_login_success(self, api_client, test_user):
         response = api_client.post('/users/login', json = {
             'username': test_user.username,
-            'password': 'newuser'
+            'password': 'test'
         })
 
         assert response.status_code == 200
@@ -34,7 +34,7 @@ class TestUserAPI:
     def test_login_wrong_password(self, api_client, test_user):
         response = api_client.post('/users/login', json = {
             'username': test_user.username,
-            'password': 'usernew'
+            'password': 'wrongtest'
         })
 
         assert response.status_code == 401

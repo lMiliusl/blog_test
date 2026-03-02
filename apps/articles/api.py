@@ -15,7 +15,7 @@ def list_categories(request):
 @router.post('/categories', response=CategorySchema, auth=token_auth)
 def create_category(request, data: CategoryCreateSchema):
     if not request.user.is_authenticated:
-        return 401
+        return 401, {'Authentication required'}
     
     category = Category.objects.create(**data.dict())
     return category
@@ -83,14 +83,14 @@ def create_article(request, data: ArticleCreateSchema):
 
 @router.put('/articles/{article_id}', response=ArticleSchema, auth=token_auth)
 @log_crud_operations('Article')
-def update_aticle(request, article_id, data: ArticleUpdateSchema):
+def update_aticle(request, article_id : int, data: ArticleUpdateSchema):
     article = get_object_or_404(Article, id=article_id)
 
     if article.author != request.user:
         return {'error': 'Вы не автор данной статьи'}, 403
     
     for attr, value in data.dict(exclude_unset=True).items():
-        if attr == 'category_id' and value:
+        if attr == 'category_id' and value is not None:
             category = get_object_or_404(Category, id=value)
             article.category = category
         elif attr != 'category_id' and value is not None:
