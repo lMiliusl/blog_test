@@ -5,7 +5,7 @@ from apps.articles.models import Article, Category
 class TestArticlesAPI:
 
     def test_list_articles(self, api_client, test_article):
-        response = api_client.get('/articles')
+        response = api_client.get('/articles/')
 
         assert response.status_code == 200
         data = response.json()
@@ -22,7 +22,7 @@ class TestArticlesAPI:
 
     def test_create_article_success(self, api_client, auth_headers, test_category):
         response = api_client.post(
-            '/articles',
+            '/articles/',
             json = {
                 'title': 'New Article',
                 'content': 'New Content',
@@ -39,7 +39,7 @@ class TestArticlesAPI:
 
     def test_create_article_unauthenticated(self, api_client, test_category):
         response = api_client.post(
-             "/articles",
+             "/articles/",
             json = {
                 'title': 'New Article',
                 'content': 'New Content',
@@ -71,7 +71,7 @@ class TestArticlesAPI:
             )
 
             assert response.status_code == 403
-            assert 'error' in response.json()
+            assert 'detail' in response.json()
 
     def test_delete_article_as_author(self, api_client, auth_headers, test_article):
          article_id = test_article.id

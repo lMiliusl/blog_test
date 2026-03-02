@@ -16,7 +16,7 @@ def list_categories(request):
 @router.post('/categories', response=CategorySchema, auth=token_auth)
 def create_category(request, data: CategoryCreateSchema):
     if not request.user.is_authenticated:
-        return 401, {'Authentication required'}
+        raise HttpError(401, 'Authentication required')
     
     category = Category.objects.create(**data.dict())
     return category
