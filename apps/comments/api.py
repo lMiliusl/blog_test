@@ -5,6 +5,7 @@ from .models import Comment
 from apps.articles.models import Article
 from .schemas import CommentSchema, CommentCreateSchema, CommentUpdateSchema
 from apps.users.auth import token_auth
+from django.http import JsonResponse
 
 router = Router(tags=['comments'])
 
@@ -13,11 +14,11 @@ def list_comments(request, article_id: int):
     article = get_object_or_404(Article, id=article_id)
     comments = Comment.objects.filter(
         article=article,
-        parent_isnull=True
-    ).select_related('author').prefetch_related('replices_author')
+        parent__isnull=True
+    ).select_related('author').prefetch_related('replies_author')
 
     result = []
-    for comment in comment:
+    for comment in comments:
         result.append({
             'id': comment.id,
             'content': comment.content,
@@ -29,7 +30,7 @@ def list_comments(request, article_id: int):
             'updated_at': comment.updated_at
         })
 
-    for reply in comment.replies.all():
+    for reply in comments:
         result.append({
             'id': reply.id,
             'content': reply.content,
@@ -50,7 +51,7 @@ def create_comment(request, data: CommentCreateSchema):
     if data.parent_id:
         parent = get_object_or_404(Comment, id=data.parent_id)
         if parent.article.id != article.id:
-            return{'error': 'Родительский комментарий не относится к данной статье.'}, 400
+            return JsonResponse ({'error': 'Родительский комментарий не относится к данной статье.'}, status = 400)
         
     comment = Comment.objects.create(
         content = data.content,
@@ -74,7 +75,7 @@ def create_comment(request, data: CommentCreateSchema):
 def update_comment(request, comment_id: int, data: CommentUpdateSchema):
     comment = get_object_or_404(Comment, id = comment_id)
     if comment.author != request.user:
-        return {'error': 'Вы не являетесь автором этого комментария.'}, 403
+        return JsonResponse({'error': 'Вы не являетесь автором этого комментария.'}, status = 403)
     
     if data.content:
         comment.content = data.content
@@ -91,12 +92,12 @@ def update_comment(request, comment_id: int, data: CommentUpdateSchema):
         'updated_at': comment.updated_at
     }
 
-@router.delete('/comments/{comments_id}', auth=token_auth)
+@router.delete('/comments/{comment_id}', auth=token_auth)
 def delete_comment(request, comment_id: int):
     comment = get_object_or_404(Comment, id=comment_id)
     
     if comment.author != request.user:
-        return{'error': 'Вы не являетесь автором этого комментария.'}, 403
+        return JsonResponse ({'error': 'Вы не являетесь автором этого комментария.'}, status = 403)
     
     comment.delete()
     return {'success': True}

@@ -12,4 +12,4 @@ api = NinjaAPI(
 
 api.add_router('/users/', user_router)
 api.add_router('/articles/', articles_router)
-api.add_router('/comments/', comments_router)
+api.add_router("", comments_router)
