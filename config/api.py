@@ -15,12 +15,4 @@ api = NinjaAPI(
 
 api.add_router('/users/', user_router)
 api.add_router('/articles/', articles_router)
-<<<<<<< HEAD
-<<<<<<< HEAD
 api.add_router("", comments_router)
-=======
-api.add_router('/', comments_router)
->>>>>>> parent of 3fd6f0d (update)
-=======
-api.add_router('/', comments_router)
->>>>>>> parent of 3fd6f0d (update)
