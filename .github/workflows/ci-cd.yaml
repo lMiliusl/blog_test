@@ -1,0 +1,99 @@
+name: CI/CD Piline
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request: 
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: blog_db
+          POSTGRES_USER: blog_user
+          POSTGRES_PASSWORD: P@ssw0rd
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        env:
+          DB_NAME: blog_db
+          DB_USER: blog_user
+          DB_PASSWORD: P@ssw0rd
+          DB_HOST: localhost
+          DB_PORTL: 5432
+        run: |
+          python manage.py migrate
+
+      - name: Run tests
+        env:
+          DB_NAME: blog_db
+          DB_USER: blog_user
+          DB_PASSWORD: P@ssw0rd
+          DB_HOST: localhost
+          DB_PORTL: 5432
+        run: |
+          tests
+
+  build-and-push:
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/blog:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: $ {{ secrets.VPS_USER }}
+          key: $ {{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /path/to/project # путь к папке на VPS
+            docker-compose pull
+            docker-compose up -d --remove-orphans
