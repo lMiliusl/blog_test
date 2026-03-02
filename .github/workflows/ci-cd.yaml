@@ -46,6 +46,7 @@ jobs:
           DB_HOST: localhost
           DB_PORTL: 5432
         run: |
+          python manage.py makemigrations
           python manage.py migrate
 
       - name: Run tests
