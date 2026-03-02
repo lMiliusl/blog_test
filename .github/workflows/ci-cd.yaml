@@ -44,7 +44,7 @@ jobs:
           DB_USER: blog_user
           DB_PASSWORD: P@ssw0rd
           DB_HOST: localhost
-          DB_PORTL: 5432
+          DB_PORT: 5432
         run: |
           python manage.py makemigrations
           python manage.py migrate
@@ -55,9 +55,9 @@ jobs:
           DB_USER: blog_user
           DB_PASSWORD: P@ssw0rd
           DB_HOST: localhost
-          DB_PORTL: 5432
+          DB_PORT: 5432
         run: |
-          tests
+          pytest
 
   build-and-push:
     needs: test
