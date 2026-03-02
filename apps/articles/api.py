@@ -34,7 +34,7 @@ def list_articles(request):
             'author_name': article.author.username,
             'category': article.category,
             'created_at': article.created_at,
-            'update_at': article.updated_at
+            'update_at': article.update_at
         })
     return result
 
@@ -49,7 +49,7 @@ def get_article(request, article_id: int):
         'author_name': article.author.username,
         'category': article.category,
         'created_at': article.created_at,
-        'update_at': article.updated_at
+        'update_at': article.update_at
     }
 
 @router.post('/articles', response=ArticleSchema, auth=token_auth)
@@ -79,12 +79,12 @@ def create_article(request, data: ArticleCreateSchema):
         'author_name': article.author.username,
         'category': article.category,
         'created_at': article.created_at,
-        'update_at': article.updated_at
+        'update_at': article.update_at
     }
 
 @router.put('/articles{article_id}', response=ArticleSchema, auth=token_auth)
 @log_crud_operations('Article')
-def update_aticle(request, article_id : int, data: ArticleUpdateSchema):
+def update_article(request, article_id : int, data: ArticleUpdateSchema):
     article = get_object_or_404(Article, id=article_id)
 
     if article.author != request.user:
@@ -107,7 +107,7 @@ def update_aticle(request, article_id : int, data: ArticleUpdateSchema):
         'author_name': article.author.username,
         'category': article.category,
         'created_at': article.created_at,
-        'update_at': article.updated_at
+        'update_at': article.update_at
         }
 
 @router.delete('/articles{article_id}', auth=token_auth)

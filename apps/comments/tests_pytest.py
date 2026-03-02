@@ -75,7 +75,7 @@ class TestCommentAPI:
         )
 
         assert response.status_code == 403
-        assert 'error' in response.json()
+        assert 'detail' in response.json()
 
     def test_delete_comment_as_author(self, api_client, auth_headers, test_comment):
         comment_id = test_comment.id

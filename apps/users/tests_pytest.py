@@ -38,7 +38,7 @@ class TestUserAPI:
         })
 
         assert response.status_code == 401
-        assert 'error' in response.json()
+        assert 'detail' in response.json()
 
     def test_get_me_authenticated(self, api_client, auth_headers, test_user):
         response = api_client.get('/users/me', headers = auth_headers)

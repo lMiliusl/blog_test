@@ -5,7 +5,7 @@ from apps.articles.models import Article, Category
 class TestArticlesAPI:
 
     def test_list_articles(self, api_client, test_article):
-        response = api_client.get('/articles/articles')
+        response = api_client.get('/articles')
 
         assert response.status_code == 200
         data = response.json()
@@ -13,7 +13,7 @@ class TestArticlesAPI:
         assert data[0]['title'] == 'Test Article'
 
     def test_get_article_detail(self, api_client, test_article):
-        response = api_client.get(f'/articles/articles/{test_article.id}')
+        response = api_client.get(f'/articles/{test_article.id}')
 
         assert response.status_code == 200
         data = response.json()
@@ -22,7 +22,7 @@ class TestArticlesAPI:
 
     def test_create_article_success(self, api_client, auth_headers, test_category):
         response = api_client.post(
-            '/articles/articles',
+            '/articles',
             json = {
                 'title': 'New Article',
                 'content': 'New Content',
@@ -39,7 +39,7 @@ class TestArticlesAPI:
 
     def test_create_article_unauthenticated(self, api_client, test_category):
         response = api_client.post(
-             "/articles/articles",
+             "/articles",
             json = {
                 'title': 'New Article',
                 'content': 'New Content',
@@ -51,7 +51,7 @@ class TestArticlesAPI:
 
     def test_update_article_as_author(self, api_client, auth_headers, test_article):
         response = api_client.put(
-            f'/articles/articles/{test_article.id}',
+            f'/articles/{test_article.id}',
             json = {'title': 'Updated Title'},
             headers = auth_headers
         )
@@ -65,7 +65,7 @@ class TestArticlesAPI:
     
     def test_update_article_as_non_author(self, api_client, another_auth_headers, test_article):
             response = api_client.put(
-                f'/articles/articles/{test_article.id}',
+                f'/articles/{test_article.id}',
                 json = {'title': 'Updated Title'},
                 headers = another_auth_headers
             )
@@ -76,7 +76,7 @@ class TestArticlesAPI:
     def test_delete_article_as_author(self, api_client, auth_headers, test_article):
          article_id = test_article.id
          response = api_client.delete(
-              f'/articles/articles/{article_id}',
+              f'/articles/{article_id}',
               headers = auth_headers
          )
 
@@ -88,7 +88,7 @@ class TestArticlesAPI:
     def test_delete_article_as_non_author(self, api_client, another_auth_headers, test_article):
          article_id = test_article.id
          response = api_client.delete(
-              f'/articles/articles/{article_id}',
+              f'/articles/{article_id}',
               headers = another_auth_headers
          )
 
