@@ -90,11 +90,11 @@
 
 Проект использует  pytest для тестирования. Запуск тестов:
 
-    ```bash pytest```
+    ```bash pytest
 
 Или с отчётом о покрытии:
 
-    ```bash pytest --cov=apps```
+    ```bash pytest --cov=apps
 
 ## CI/CD
 
