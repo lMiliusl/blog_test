@@ -15,7 +15,7 @@ def list_comments(request, article_id: int):
     comments = Comment.objects.filter(
         article=article,
         parent__isnull=True
-    ).select_related('author').prefetch_related('replies_author')
+    ).select_related('author').prefetch_related('replies__author')
 
     result = []
     for comment in comments:
@@ -26,21 +26,21 @@ def list_comments(request, article_id: int):
             'author_name': comment.author.username,
             'article_id': article_id,
             'parent_id': None,
-            'created_at': comment.created_at,
-            'updated_at': comment.updated_at
+            'created_at': comment.created_at.isoformat(),
+            'updated_at': comment.updated_at.isoformat()
         })
 
-    for reply in comments:
-        result.append({
-            'id': reply.id,
-            'content': reply.content,
-            'author_id': reply.author.id,
-            'author_name': reply.author.username,
-            'article_id': article_id,
-            'parent_id': comment.id,
-            'created_at': reply.created_at,
-            'updated_at': reply.updated_at
-        })
+        for reply in comment.replies.all():
+            result.append({
+                'id': reply.id,
+                'content': reply.content,
+                'author_id': reply.author.id,
+                'author_name': reply.author.username,
+                'article_id': article_id,
+                'parent_id': comment.id,
+                'created_at': reply.created_at.isoformat(),
+                'updated_at': reply.updated_at.isoformat()
+            })
 
     return result
 
@@ -67,8 +67,8 @@ def create_comment(request, data: CommentCreateSchema):
         'author_name': comment.author.username,
         'article_id': article.id,
         'parent_id': parent.id if parent else None,
-        'created_at': comment.created_at,
-        'updated_at': comment.updated_at
+        'created_at': comment.created_at.isoformat(),
+        'updated_at': comment.updated_at.isoformat()
     }
 
 @router.put('/comments/{comment_id}', response=CommentSchema, auth=token_auth)
@@ -88,8 +88,8 @@ def update_comment(request, comment_id: int, data: CommentUpdateSchema):
         'author_name': comment.author.username,
         'article_id': comment.article.id,
         'parent_id': comment.parent.id if comment.parent else None,
-        'created_at': comment.created_at,
-        'updated_at': comment.updated_at
+        'created_at': comment.created_at.isoformat(),
+        'updated_at': comment.updated_at.isoformat()
     }
 
 @router.delete('/comments/{comment_id}', auth=token_auth)
