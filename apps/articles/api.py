@@ -21,7 +21,7 @@ def create_category(request, data: CategoryCreateSchema):
     category = Category.objects.create(**data.dict())
     return category
 
-@router.get('/articles', response=List[ArticleSchema])
+@router.get('', response=List[ArticleSchema])
 def list_articles(request):
     articles = Article.objects.all().select_related('author', 'category')
     result = []
@@ -38,7 +38,7 @@ def list_articles(request):
         })
     return result
 
-@router.get('/articles{article_id}', response=ArticleSchema)
+@router.get('/{article_id}', response=ArticleSchema)
 def get_article(request, article_id: int):
     article = get_object_or_404(Article, id=article_id)
     return {
@@ -52,7 +52,7 @@ def get_article(request, article_id: int):
         'update_at': article.update_at
     }
 
-@router.post('/articles', response=ArticleSchema, auth=token_auth)
+@router.post('', response=ArticleSchema, auth=token_auth)
 @log_crud_operations('Article')
 def create_article(request, data: ArticleCreateSchema):
     if not request.user.is_authenticated:
@@ -82,7 +82,7 @@ def create_article(request, data: ArticleCreateSchema):
         'update_at': article.update_at
     }
 
-@router.put('/articles{article_id}', response=ArticleSchema, auth=token_auth)
+@router.put('/{article_id}', response=ArticleSchema, auth=token_auth)
 @log_crud_operations('Article')
 def update_article(request, article_id : int, data: ArticleUpdateSchema):
     article = get_object_or_404(Article, id=article_id)
@@ -110,7 +110,7 @@ def update_article(request, article_id : int, data: ArticleUpdateSchema):
         'update_at': article.update_at
         }
 
-@router.delete('/articles{article_id}', auth=token_auth)
+@router.delete('/{article_id}', auth=token_auth)
 @log_crud_operations('Article')
 def delete_article(request, article_id: int):
     article = get_object_or_404(Article, id=article_id)
