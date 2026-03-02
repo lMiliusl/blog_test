@@ -1,8 +1,11 @@
 from ninja import NinjaAPI
+from ninja.security import HttpBearer
+from django.contrib.auth import authenticate
+from django.http import JsonResponse
 from apps.users.api import router as user_router
 from apps.articles.api import router as articles_router
 from apps.comments.api import router as comments_router
-
+import json
 
 api = NinjaAPI(
     title='Blog API',
@@ -12,4 +15,8 @@ api = NinjaAPI(
 
 api.add_router('/users/', user_router)
 api.add_router('/articles/', articles_router)
+<<<<<<< HEAD
 api.add_router("", comments_router)
+=======
+api.add_router('/', comments_router)
+>>>>>>> parent of 3fd6f0d (update)
